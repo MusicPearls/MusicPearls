@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "jest --testPathIgnorePatterns=/dataIntegrityTests/ --detectOpenHandles",
+    "test:integrity": "jest dataIntegrityTests/",
     "start": "node index.js",
     "server": "nodemon index.js",
     "vercel": "vercel",
@@ -35,5 +36,10 @@
     "mocha": "^10.6.0",
     "nodemon": "^3.1.4",
     "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
   }
 }
