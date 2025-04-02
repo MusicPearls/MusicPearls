@@ -80,7 +80,7 @@ function FormRanking() {
                 <p>No work found for this musical form</p>
             ) : (
                 filteredOpus.map((opus, i) => (
-                    <OpusBox key={i} opus={opus} index={i}/>
+                    <OpusBox key={i} opus={opus} index={i} info={"composer"} />
                 ))
             )}
         </div>

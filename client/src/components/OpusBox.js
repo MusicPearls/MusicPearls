@@ -3,7 +3,7 @@ import './OpusBox.css'
 import OpusDescription from './OpusDescription';
 import { getOrdinal } from '../utils/getOrdinal';
 
-function OpusBox({ opus, index }) {
+function OpusBox({ opus, index, info }) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpand = () => {
         setExpanded(!expanded);
@@ -25,6 +25,17 @@ function OpusBox({ opus, index }) {
     const medalImage = getMedalImage(index + 1);
     const popularity = opus.formPopularity ? opus.formPopularity : opus.composerPopularity;
 
+    let addInfo
+    let hrefLink
+    if (info === "composer") {
+        addInfo = opus.composer
+        hrefLink = `/composer/${encodeURIComponent(opus.composer)}`
+    }
+    else {
+        addInfo = opus.form
+        hrefLink = `/form/${encodeURIComponent(opus.form)}`
+    }
+
     return (
         <div className={`opus-box ${expanded ? 'expanded' : ''}`} onClick={handleBoxClick}>
             <div className="opus-header">
@@ -34,7 +45,11 @@ function OpusBox({ opus, index }) {
                         {medalImage && <img src={medalImage} alt={`${getOrdinal(index+1)} Medal`} className="medal-image" />}
                     </span>
                     <h3>{opus.opusname}</h3>
-                    <p className="composer-name">{opus.composer}</p>
+                    <p className="additional-info">
+                        <a href={hrefLink} target="_blank" rel="noopener noreferrer" className="additional-info">
+                            {addInfo}
+                        </a>
+                    </p>
                 </div>
                 <div className="opus-stats">
                     <p>Popularity: {Number(popularity).toFixed(2)}</p>

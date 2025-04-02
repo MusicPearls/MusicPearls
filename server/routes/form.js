@@ -18,7 +18,7 @@ router.get('/', function(req, res) {
     let allForms = [];
     
     try {
-        const opusJson = fs.readFileSync(path.join(__dirname, '../server-data/form_opus.json'), 'utf8');
+        const opusJson = fs.readFileSync(path.join(__dirname, '../server-data/opus.json'), 'utf8');
         const formsJson = fs.readFileSync(path.join(__dirname, '../server-data/forms.json'), 'utf8');
         allOpus = JSON.parse(opusJson);
         allForms = JSON.parse(formsJson);
