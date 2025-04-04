@@ -20,3 +20,6 @@ jspm_packages/
 .vercel
 /client/.env
 *.DS_Store
+/server/.env
+gcp-service-account.json
+/.env

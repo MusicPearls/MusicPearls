@@ -2,6 +2,67 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const { fetchData } = require('../utils');
+
+
+
+function calculateWeightedScores(data, key, popularityField) {
+    const stats = {};
+    data.forEach(opus => {
+        const groupKey = opus[key];
+        if (!stats[groupKey]) {
+            stats[groupKey] = {
+                totalPopularity: 0,
+                pieceCount: 0,
+                totalRecordings: 0
+            };
+        }
+        stats[groupKey].totalPopularity += opus[popularityField];
+        stats[groupKey].pieceCount += 1;
+        stats[groupKey].totalRecordings += opus.recordingCount;
+    });
+
+    return Object.entries(stats).map(([group, values]) => {
+        const avgPopularity = values.totalPopularity / values.pieceCount;
+        const pieceWeight = Math.log2(values.pieceCount + 1);
+        const recWeight = Math.log2(values.totalRecordings + 1);
+        return {
+            [key]: group,
+            score: avgPopularity * pieceWeight * recWeight
+        };
+    }).sort((a, b) => b.score - a.score);
+}
+
+function handleComposerRequest(allOpus, composerName) {
+    const composerOpus = allOpus
+        .filter(item => item.composer === composerName && item.composerRelevant)
+        .map(({ opusname, composer, form, composerPopularity, recordingCount, representativeTrack }) => ({
+            opusname, composer, form, composerPopularity, recordingCount, representativeTrack
+        }));
+
+    const formScores = calculateWeightedScores(composerOpus, 'form', 'composerPopularity');
+    const topForms = formScores.slice(0, 3).map(entry => entry.form);
+
+    composerOpus.sort((a, b) => b.composerPopularity - a.composerPopularity);
+
+    return { composerOpus, topForms };
+}
+
+function handleFormRequest(allOpus, formName) {
+    const formOpus = allOpus
+        .filter(item => item.form === formName && item.formRelevant)
+        .map(({ opusname, composer, form, formPopularity, recordingCount, representativeTrack }) => ({
+            opusname, composer, form, formPopularity, recordingCount, representativeTrack
+        }));
+
+    const composerScores = calculateWeightedScores(formOpus, 'composer', 'formPopularity');
+    const topComposers = composerScores.slice(0, 3).map(entry => entry.composer);
+
+    formOpus.sort((a, b) => b.formPopularity - a.formPopularity);
+
+    return { formOpus, topComposers };
+}
+
 
 /**
  * @swagger
@@ -24,140 +85,31 @@ const path = require('path');
  *       200:
  *         description: Successful response
  */
-router.get('/', function(req, res) {
-    let allOpus = []
-    var composerName = req.query.composer || null
-    var formName = req.query.form || null
-    
-    // Read the opus.json file once
+router.get('/', async function(req, res) {
+    const composerName = req.query.composer || null;
+    const formName = req.query.form || null;
+
     try {
-        const opusJson = fs.readFileSync(path.join(__dirname, '../server-data/opus.json'), 'utf8');
-        allOpus = JSON.parse(opusJson);
+        const allOpus = await fetchData('opus.json');
+
+        if (composerName && !formName) {
+            const { composerOpus, topForms } = handleComposerRequest(allOpus, composerName);
+            return res.json({ Opus: composerOpus, TopForms: topForms });
+        }
+
+        if (formName && !composerName) {
+            const { formOpus, topComposers } = handleFormRequest(allOpus, formName);
+            return res.json({ FormOpus: formOpus, TopComposers: topComposers });
+        }
+
+        if (formName && composerName) {
+            return res.status(400).send('Bad Request: Select either composer or form');
+        }
+
+        return res.status(400).send('Bad Request: No composer or musical form requested');
     } catch (error) {
-        console.error('Error reading opus data: ', error);
+        console.error('Error reading opus data:', error);
         res.status(500).send('Server Error');
-        return;
-    }
-
-    if (composerName && !formName) {
-        const composerOpus = allOpus
-            .filter(item => item.composer === composerName && item.composerRelevant === true)
-            .map(opus => ({
-                opusname: opus.opusname,
-                composer: opus.composer,
-                form: opus.form,
-                composerPopularity: opus.composerPopularity,
-                recordingCount: opus.recordingCount,
-                representativeTrack: opus.representativeTrack
-            }));
-        
-        // Calculate weighted score for each form
-        const formStats = {};
-        composerOpus.forEach(opus => {
-            if (!formStats[opus.form]) {
-                formStats[opus.form] = {
-                    totalPopularity: 0,
-                    pieceCount: 0,
-                    totalRecordings: 0
-                };
-            }
-            formStats[opus.form].totalPopularity += opus.composerPopularity;
-            formStats[opus.form].pieceCount += 1;
-            formStats[opus.form].totalRecordings += opus.recordingCount;
-        });
-
-        // Calculate weighted scores
-        const formScores = Object.entries(formStats).map(([form, stats]) => {
-            const avgPopularity = stats.totalPopularity / stats.pieceCount;
-            const pieceCountWeight = Math.log2(stats.pieceCount + 1); // logarithmic scaling for piece count
-            const recordingsWeight = Math.log2(stats.totalRecordings + 1); // logarithmic scaling for recordings
-            
-            // Weighted score formula:
-            // (Average Popularity) * (log2(pieces + 1)) * (log2(recordings + 1))
-            const weightedScore = avgPopularity * pieceCountWeight * recordingsWeight;
-            
-            return {
-                form,
-                score: weightedScore
-            };
-        });
-
-        // Sort by weighted score and get top 3 forms
-        const topForms = formScores
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 3)
-            .map(item => item.form);
-
-        composerOpus.sort((a, b) => b.composerPopularity - a.composerPopularity);
-        res.json({
-            'Opus': composerOpus,
-            'TopForms': topForms
-        });           
-    }
-
-    else if (formName && !composerName) {
-        const formOpus = allOpus
-            .filter(item => item.form === formName && item.formRelevant === true)
-            .map(opus => ({
-                opusname: opus.opusname,
-                composer: opus.composer,
-                form: opus.form,
-                formPopularity: opus.formPopularity,
-                recordingCount: opus.recordingCount,
-                representativeTrack: opus.representativeTrack
-            }));
-        
-        // Calculate weighted score for each composer
-        const composerStats = {};
-        
-        formOpus.forEach(opus => {
-            if (!composerStats[opus.composer]) {
-                composerStats[opus.composer] = {
-                    totalPopularity: 0,
-                    pieceCount: 0,
-                    totalRecordings: 0
-                };
-            }
-            composerStats[opus.composer].totalPopularity += opus.formPopularity;
-            composerStats[opus.composer].pieceCount += 1;
-            composerStats[opus.composer].totalRecordings += opus.recordingCount;
-        });
-
-        // Calculate weighted scores for composers
-        const composerScores = Object.entries(composerStats).map(([composer, stats]) => {
-            const avgPopularity = stats.totalPopularity / stats.pieceCount;
-            const pieceCountWeight = Math.log2(stats.pieceCount + 1);
-            const recordingsWeight = Math.log2(stats.totalRecordings + 1);
-            
-            const weightedScore = avgPopularity * pieceCountWeight * recordingsWeight;
-            
-            return {
-                composer,
-                score: weightedScore
-            };
-        });
-
-        // Sort by weighted score and get top 3 composers
-        const topComposers = composerScores
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 3)
-            .map(item => item.composer);
-
-        // Sort opus by popularity for the main list
-        formOpus.sort((a, b) => b.formPopularity - a.formPopularity);
-        
-        res.json({
-            'FormOpus': formOpus,
-            'TopComposers': topComposers
-        });
-    }
-
-    else if (formName && composerName) {
-        res.status(400).send('Bad Request: Select either composer or form')
-    }
-
-    else {
-        res.status(400).send('Bad Request: No composer or musical form requested')
     }
 });
 

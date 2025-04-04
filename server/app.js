@@ -7,7 +7,7 @@ const cors = require('cors');
 // Import routes
 const authRoutes = require('./routes/auth');
 const composerRoutes = require('./routes/composers');
-const formRoutes = require('./routes/form');
+const formRoutes = require('./routes/forms');
 const wikiRoutes = require('./routes/wiki');
 const opusRoutes = require('./routes/opus');
 const swaggerSetup = require('./swagger');
