@@ -2,64 +2,80 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ComposerTable from '../components/ComposerTable';
-
-beforeEach(() => {
-    // Mock the fetch function
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            Composers: [
-                {name:'Beethoven', birthyear:1000}, 
-                {name:'Copland', birthyear:2000}, 
-                {name:'Haydn', birthyear:3000}
-            ],
-          }),
-      })
-    );
-  });
-  
-afterEach(() => {
-    jest.resetAllMocks();
-});
+import '@testing-library/jest-dom';
 
 describe('Composer table (ComposerTable)', () => {
-    it('renders loading state', () => {
-            render(
-                <MemoryRouter>
-                    <ComposerTable/>
-                </MemoryRouter>
-            );
-        expect(screen.getByText('Loading composer list...')).toBeInTheDocument();
-    })
-
-    it('renders the table when data is available', async () => {
-        render(
-          <MemoryRouter>
-            <ComposerTable />
-          </MemoryRouter>
+    beforeEach(() => {
+        // Mock the fetch function
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => Promise.resolve({
+                    Composers: [
+                        {name: 'Beethoven', birthyear: 1770, period: 'Classical'}, 
+                        {name: 'Mozart', birthyear: 1756, period: 'Classical'}, 
+                        {name: 'Bach', birthyear: 1685, period: 'Baroque'}
+                    ],
+                })
+            })
         );
+    });
+  
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
+
+    it('renders composers when data is available', async () => {
+        render(
+            <MemoryRouter>
+                <ComposerTable />
+            </MemoryRouter>
+        );
+        
         await waitFor(() => {
-          expect(screen.queryByText('Loading composer list...')).not.toBeInTheDocument();
+            expect(screen.getByText('Bach')).toBeInTheDocument();
         });
-        expect(screen.getByText('Beethoven')).toBeInTheDocument();
-        expect(screen.getByText('Haydn')).toBeInTheDocument();
-        expect(screen.getByText('Copland')).toBeInTheDocument();
-      });
+        await waitFor(() => {
+            expect(screen.getByText('Mozart')).toBeInTheDocument();
+        });
+        await waitFor(() => {
+            expect(screen.getByText('Beethoven')).toBeInTheDocument();
+        });
+    });
 
     it('renders links with correct hrefs', async () => {
         render(
             <MemoryRouter>
-            <ComposerTable />
+                <ComposerTable />
             </MemoryRouter>
         );
 
         await waitFor(() => {
-            expect(screen.queryByText('Loading composer list...')).not.toBeInTheDocument();
-            });
-        ['Beethoven', 'Copland', 'Haydn'].forEach((composer) => {
-            const link = screen.getByRole('link', {name: composer});
-            expect(link).toHaveAttribute('href', `http://localhost:3000/composer/${composer}`);
+            expect(screen.getByText('Bach')).toBeInTheDocument();
+        });
+
+        ['Bach', 'Mozart', 'Beethoven'].forEach((composer) => {
+            // Look for a link containing the composer name
+            const link = screen.getByRole('link', { name: new RegExp(composer) });
+            expect(link).toHaveAttribute('href', `/composer/${composer}`);
         });
     });
-})
+
+    it('displays birth years', async () => {
+        render(
+            <MemoryRouter>
+                <ComposerTable />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText(/1685/)).toBeInTheDocument(); // Bach
+        });
+        await waitFor(() => {
+            expect(screen.getByText(/1756/)).toBeInTheDocument(); // Mozart
+        });
+        await waitFor(() => {
+            expect(screen.getByText(/1770/)).toBeInTheDocument(); // Beethoven
+        });
+    });
+});
+

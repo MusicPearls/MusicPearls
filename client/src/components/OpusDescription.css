@@ -1,0 +1,35 @@
+.opus-description {
+    margin: 0;
+    border: none;
+}
+
+.description-text {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    border: none;
+}
+
+.wiki-link {
+    margin-top: 0.5rem;
+}
+
+.wiki-link a {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.wiki-link a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #666;
+    font-style: italic;
+}
+
+.loading-message {
+    color: #666;
+    font-style: italic;
+}

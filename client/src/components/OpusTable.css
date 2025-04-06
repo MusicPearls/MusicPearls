@@ -1,7 +1,157 @@
+.opus-table {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .description {
+    padding: 20px;
     margin-bottom: 20px;
-    padding: 5px;
-    width: 80%;
-    margin-bottom: 10px;
-    margin-left: 40px;
-  }
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.description h3 {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+    color: #252525;
+}
+
+.description p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+    color: #414141;
+    display: inline;
+}
+
+/* Add media queries for mobile */
+@media screen and (max-width: 768px) {
+    .opus-table {
+        padding: 10px;
+    }
+
+    .description {
+        padding: 15px;
+    }
+
+    .description h3 {
+        font-size: 1.5rem;
+    }
+}
+
+.top-forms {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.top-forms h3 {
+    color: #8b7355;
+    margin: 0 0 8px 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.forms-list {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.top-form-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.form-rank {
+    background-color: #b1a089;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.form-name {
+    color: #61563e;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.form-name:hover {
+    color: #8b7355;
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 768px) {
+    .description {
+        padding: 15px;
+    }
+
+    .description h3 {
+        font-size: 1.5rem;
+    }
+
+    .forms-list {
+        gap: 15px;
+    }
+
+    .top-forms h3 {
+        font-size: 0.75rem;
+        letter-spacing: 0.3px;
+    }
+}
+
+.wiki-link {
+    display: inline;
+    margin-left: 1rem;
+}
+
+.wiki-link a {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+}
+
+.wiki-link a:hover {
+    text-decoration: underline;
+}
+
+.form-filter {
+    margin: 20px 0;
+}
+
+.form-select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #D9C9A7;
+    border-radius: 4px;
+    background-color: #FFFCF5;
+    min-width: 200px;
+    color: #4A3C31;
+}
+
+.form-select:hover {
+    border-color: #A99985;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #A99985;
+    box-shadow: 0 0 0 2px rgba(169, 153, 133, 0.2);
+}
