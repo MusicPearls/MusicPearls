@@ -1,58 +1,65 @@
-import React from 'react'
-import './About.css'
+import React from 'react';
+import './About.css';
 
 function About() {
-    return (
-        <div className="about-container">
-          <section className="about-section">
-            <h2>About</h2>
-            <p>
-            Music Pearls is a free app designed to help you explore the world of classical music. Whether you're a seasoned fan or just starting out, 
-            we offer easy-to-understand info about classical music works and artists. Our unique approach looks at the popularity of whole pieces, not just individual movements, 
-            so you get a complete picture of each composition.
-            </p>
-          </section>
-    
-          <section className="about-section">
-            <h2>Disclaimers</h2>
-            <h4>Music Pearls strives for accuracy but is not flawless</h4>
-            <ul>
-                <li><strong>Categorization:</strong> We use extensive regular expression functions and AI categorization to parse and classify over a million music tracks 
-                into their respective musical forms based on their titles. 
-                While this method is robust, errors can occur, and some works with non-standard titles, especially those of modern composers, may be left out.
-                </li>
-                <li><strong>Descriptions:</strong> We use the Wikipedia API to generate descriptions for each displayed work. Despite our best efforts to ensure accuracy, 
-                some descriptions may not perfectly match the intended works.</li>
-            </ul>
-          </section>
-    
-          <section className="about-section">
-            <h2>Methodology</h2>
-            Starting with raw track data from Spotify, we apply a three-step process to produce the results shown on our pages: grouping, normalizing, and filtering.
-            <ul>
-                    <li><strong>Grouping: </strong> This step combines tracks that represent the same work (e.g., the multiple movements of a symphony or sonata). 
-                    For example, the four movements of a symphony are grouped into a single entry representing the entire symphony, 
-                    with the average popularity of all movements considered.</li>
-                    <li><strong>Normalizing: </strong>This step refines the 'Popularity' data to make it more descriptive. Initially, each track has a 'popularity' 
-                    score from 0 to 100, assigned by Spotify based on the number of plays and the recency of those plays. 
-                    After grouping, each work receives a 'Popularity' score based on the average popularity of its constituent tracks. 
-                    Within each musical form or composer, we normalize these scores from 0 to 100 (100 being the most popular and 0 the least) 
-                    based on the number of recordings each work has. Works with high popularity but few recordings are penalized in this process.</li>
-                    <li><strong>Filtering: </strong>We aim to display only relevant works in our generated lists. For each criterion, we strive to show at least 10 entries, 
-                    selecting works with more than 50 recordings. If fewer than 10 entries meet the criteria, we include those with the highest number of recordings 
-                    until we reach 10 entries.</li>
-            </ul>
-          </section>
-    
-          {/* <section className="about-section">
-            <h2>Contact Us</h2>
-            <p>
-              Have questions or want to learn more about our services? Feel free to reach out to us at
-              <a href="mailto:contact@ourcompany.com"> contact@ourcompany.com</a>.
-            </p>
-          </section> */}
-        </div>
-      );
+  return (
+    <div className="about-container">
+      <section className="about-section">
+        <h2>About</h2>
+        <p>
+          <strong>Music Pearls</strong> is a free website that helps you explore classical music. Whether you're a seasoned listener or just starting out, you will find your next musical adventure here. This site provides ranked lists of compositions by composer and form, powered by real-world listening data. Popularity metrics focus on complete works—not just individual movements—to offer a clearer picture of most iconic pieces.
+        </p>
+      </section>
+
+      <section className="about-section">
+        <h2>How It Works</h2>
+        <p>We use Spotify's listening data to rank classical music. Spotify assigns each track a popularity score based on the number and recency of its streams. We then apply a three-step process:</p>
+        <ul>
+          <li>
+            <strong>Grouping:</strong> Tracks that belong to the same work (e.g.: four movements of a symphony) are combined into a single entry, using the average popularity of the constituent tracks.
+          </li>
+          <li>
+            <strong>Normalizing:</strong> We adjust Spotify's popularity scores to account for the number of recordings of the work, so that a piece with lots of recordings receives a higher base popularity.
+          </li>
+          <li>
+            <strong>Filtering:</strong> To keep results meaningful, we only show works with enough recordings to make it relevant—aiming for at least 10 per category.
+          </li>
+        </ul>
+      </section>
+
+      <section className="about-section">
+        <h2>Limitations & Accuracy</h2>
+        <ul>
+          <li>
+            <strong>Classification:</strong> We use a mix of regular expressions, AI, and manual review to categorize over a million tracks. Some works may still be missing or miscategorized, but we continue improving the system with each update.
+          </li>
+          <li>
+            <strong>Descriptions:</strong> Composer and work descriptions are fetched from Wikipedia. While usually accurate, occasional mismatches can happen.
+          </li>
+        </ul>
+      </section>
+
+      <section className="about-section">
+
+    <h2>More Details</h2>
+    <p>
+      Curious about how it all works under the hood? Visit our GitHub repositories:
+    </p>
+    <ul>
+    <li>
+        <a href="https://github.com/MusicPearls/Pearls-Parser" target="_blank" rel="noopener noreferrer">
+          Pearls-Parser
+        </a> - More detailed info on how we fetch and process data
+      </li>
+      <li>
+        <a href="https://github.com/MusicPearls/MusicPearls" target="_blank" rel="noopener noreferrer">
+          MusicPearls
+        </a> - General structure of the website
+      </li>
+    </ul>
+  </section>
+    </div>
+  );
 }
 
-export default About
+export default About;

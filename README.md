@@ -37,4 +37,11 @@ Visit: [https://musicpearls.org](https://musicpearls.org)
 ## Deployment Notes
 
 - **server** is continuously deployed to Google Cloud Run whenever changes are pushed to the `main` branch.
-- **client** is deployed to Vercel manually via the CLI, as the GitHub repository belongs to an organization and is not directly connected to Vercel.
+- **client** since the Github repo belongs to a organization, frontend must be manually deployed:
+   ```bash
+   vercel login
+   npm run build
+   vercel
+   vercel --prod
+   ```
+
