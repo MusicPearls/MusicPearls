@@ -14,7 +14,7 @@ const Home = () => {
       <div className="nav-options">
         <h3>Explore:</h3>
         <Link to="/composers" className="nav-button">🎼 Composers</Link>
-        <Link to="/forms" className="nav-button">🎹 Musical Forms</Link>
+        <Link to="/form" className="nav-button">🎹 Musical Forms</Link>
         <p className="about-note">
           Want to know how it works? Visit the <Link to="/about">About</Link> page.
         </p>
