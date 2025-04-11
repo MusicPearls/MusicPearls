@@ -12,7 +12,7 @@ const BUCKET_NAME = process.env.GCP_BUCKET_NAME;
 const storage = new Storage();
 
 async function fetchLocal(fileName) {
-    const filePath = path.join(__dirname, '../server-data', fileName);
+    const filePath = path.join(__dirname, './server-data', fileName);
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
 }

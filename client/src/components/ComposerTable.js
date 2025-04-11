@@ -16,22 +16,47 @@ const PERIODS = {
 const ComposerTable = () => {
   const [backData, setBackData] = useState([{}]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
 
   const apiUrl = process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_API_BASE_URL
     : process.env.REACT_APP_LOCAL_API_BASE_URL;
 
-  useEffect(() => {
-    fetch(`${apiUrl}/composers`)
-      .then(response => response.json())
-      .then(data => { setBackData(data) })
-      .catch(error => console.error('Error fetching composers:', error));
-  }, [apiUrl]);
+    useEffect(() => {
+      setIsLoading(true);
+      setError(null);
+    
+      fetch(`${apiUrl}/composers`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch composers.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setBackData(data);
+        })
+        .catch(error => {
+          console.error('Error fetching composers:', error);
+          setError('Unable to load composer list. Please try again later.');
+        })
+        .finally(() => setIsLoading(false));
+    }, [apiUrl]);
 
-  if (typeof backData.Composers === 'undefined') {
-    return <p>Loading composer list...</p>;
-  }
-
+    if (isLoading) {
+      return <p className="loading-message">Loading composer list...</p>;
+    }
+    
+    if (error) {
+      return <p className="error-message">{error}</p>;
+    }
+    
+    if (!backData.Composers || backData.Composers.length === 0) {
+      return <p>No composers found.</p>;
+    }
+  
   // Group composers by their period property
   const groupedComposers = backData.Composers.reduce((acc, composer) => {
     if (composer.name.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -43,6 +68,8 @@ const ComposerTable = () => {
     }
     return acc;
   }, {});
+
+
 
   return (
     <div className="composers-container">

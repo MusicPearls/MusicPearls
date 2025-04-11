@@ -8,6 +8,8 @@ function FormRanking() {
     const [topComposers, setTopComposers] = useState([]);
     const [selectedComposer, setSelectedComposer] = useState('');
     const [allOpus, setAllOpus] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const apiUrl = process.env.NODE_ENV === 'production'
         ? process.env.REACT_APP_API_BASE_URL
         : process.env.REACT_APP_LOCAL_API_BASE_URL;
@@ -18,23 +20,44 @@ function FormRanking() {
     const formName = pathParts[pathParts.length - 1]
   
     useEffect(() => {
-        fetch(`${apiUrl}/opus?form=${formName}`)
-            .then(response => response.json())
-            .then(data => {
-                setTopComposers(data.TopComposers || []);
-                setAllOpus(data.FormOpus || []);
-            });
-
-        fetch(`${apiUrl}/forms/description?form=${formName}`)
-            .then(response => response.json())
-            .then(data => { setDescription(data.description); });
-    }, [formName, apiUrl])
+        setIsLoading(true);
+        setError(null);
+    
+        Promise.all([
+            fetch(`${apiUrl}/opus?form=${formName}`).then(res => {
+                if (!res.ok) throw new Error("Failed to load works.");
+                return res.json();
+            }),
+            fetch(`${apiUrl}/forms/description?form=${formName}`).then(res => {
+                if (!res.ok) throw new Error("Failed to load description.");
+                return res.json();
+            })
+        ])
+        .then(([opusData, descData]) => {
+            setTopComposers(opusData.TopComposers || []);
+            setAllOpus(opusData.FormOpus || []);
+            setDescription(descData.description || '');
+        })
+        .catch(err => {
+            console.error(err);
+            setError("Something went wrong while loading data. Please try again later.");
+        })
+        .finally(() => setIsLoading(false));
+    }, [formName, apiUrl]);
 
     const uniqueComposers = [...new Set(allOpus.map(opus => opus.composer))].sort();
 
     const filteredOpus = selectedComposer
         ? allOpus.filter(opus => opus.composer === selectedComposer)
         : allOpus;
+
+    if (isLoading) {
+        return <div className="loading">Loading content...</div>;
+    }
+    
+    if (error) {
+        return <div className="error">{error}</div>;
+    }
   
     return (
         <div className='form-ranking-table'>

@@ -9,6 +9,8 @@ function OpusTable() {
     const [topForms, setTopForms] = useState([]);
     const [selectedForm, setSelectedForm] = useState('');  // New state for form filter
     const [allOpus, setAllOpus] = useState([]);  // Store all opus
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const apiUrl = process.env.NODE_ENV === 'production'
         ? process.env.REACT_APP_API_BASE_URL
         : process.env.REACT_APP_LOCAL_API_BASE_URL;
@@ -19,21 +21,32 @@ function OpusTable() {
     const composerName = pathParts[pathParts.length - 1]
   
     useEffect(() => {
-        fetch(`${apiUrl}/opus?composer=${composerName}`).then(
-            response => response.json()).then(
-            data => {
-                setTopForms(data.TopForms || []);
-                setAllOpus(data.Opus || []); // Store all opus
+        setIsLoading(true);
+        setError(null);
+    
+        Promise.all([
+            fetch(`${apiUrl}/opus?composer=${composerName}`),
+            fetch(`${apiUrl}/wiki/composer?composer=${composerName}`)
+        ])
+        .then(async ([opusRes, wikiRes]) => {
+            if (!opusRes.ok || !wikiRes.ok) {
+                throw new Error('Failed to load composer data');
             }
-        )
-
-        fetch(`${apiUrl}/wiki/composer?composer=${composerName}`)
-            .then(response => response.json())
-            .then(data => { 
-                setDescription(data.summary);
-                setWikiUrl(data.url);
-            });
-    }, [composerName, apiUrl])
+    
+            const opusData = await opusRes.json();
+            const wikiData = await wikiRes.json();
+    
+            setTopForms(opusData.TopForms || []);
+            setAllOpus(opusData.Opus || []);
+            setDescription(wikiData.summary || '');
+            setWikiUrl(wikiData.url || '');
+        })
+        .catch(err => {
+            console.error(err);
+            setError('Unable to load data. Please try again later.');
+        })
+        .finally(() => setIsLoading(false));
+    }, [composerName, apiUrl]);
 
     // Get unique forms from opus for the dropdown
     const uniqueForms = [...new Set(allOpus.map(opus => opus.form))].sort();
@@ -42,6 +55,14 @@ function OpusTable() {
     const filteredOpus = selectedForm 
         ? allOpus.filter(opus => opus.form === selectedForm)
         : allOpus;
+
+    if (isLoading) {
+        return <p>Loading composer information...</p>;
+    }
+    
+    if (error) {
+        return <p className="error-message">{error}</p>;
+    }
         
     return (
         <div>
