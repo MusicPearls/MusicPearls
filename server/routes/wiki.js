@@ -146,7 +146,7 @@ router.get('/opus', async function(req, res) {
         srsearch: wikiSearchParam
     }
     
-    request({ url: searchUrl, qs: searchParams, json: true, headers: {'User-Agent': 'MusicPearls (https://www.musicpearls.org/about)'}, (err, response, searchData) => {
+    request({ url: searchUrl, qs: searchParams, json: true, headers: {'User-Agent': 'MusicPearls (https://www.musicpearls.org/about)'}}, (err, response, searchData) => {
         if (err) {
             console.error('Error searching Wikipedia: ', err);
             return res.status(500).send('Error searching Wikipedia');
@@ -183,7 +183,7 @@ router.get('/opus', async function(req, res) {
                 titles: wikiTitle
             }
 
-            request( {url: searchUrl, qs: pageQueryParam, json: true, headers: {'User-Agent': 'MusicPearls (https://www.musicpearls.org/about)'}, (err, response, opusData) => {
+            request( {url: searchUrl, qs: pageQueryParam, json: true, headers: {'User-Agent': 'MusicPearls (https://www.musicpearls.org/about)'}}, (err, response, opusData) => {
                 if (err) {
                     console.error('Error finding the work page: ', err);
                     return res.status(404).send('Work page not found in Wikipedia')
