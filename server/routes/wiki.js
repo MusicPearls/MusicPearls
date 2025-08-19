@@ -235,7 +235,7 @@ router.get('/composer', async function(req, res) {
             inprop: 'url',
             titles: composer
         }
-        request( {url: searchUrl, qs: pageQueryParam, json: true}, (err, response, wikiData) => {
+        request( {url: searchUrl, qs: pageQueryParam, json: true}, (err, _resp, wikiData) => {
             if (err) {
                 console.error('Error finding the work page: ', err);
                 return res.status(400).send('Error fetching Wikipedia')
