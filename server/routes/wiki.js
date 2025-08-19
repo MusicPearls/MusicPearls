@@ -235,7 +235,7 @@ router.get('/composer', async function(req, res) {
             inprop: 'url',
             titles: composer
         }
-        request( {url: searchUrl, qs: pageQueryParam, json: true}, (err, _resp, wikiData) => {
+        request( {url: searchUrl, qs: pageQueryParam, json: true, headers: {'User-Agent': 'MusicPearls (https://www.musicpearls.org/about)'}}, (err, _resp, wikiData) => {
             if (err) {
                 console.error('Error finding the work page: ', err);
                 return res.status(400).send('Error fetching Wikipedia')
@@ -248,7 +248,7 @@ router.get('/composer', async function(req, res) {
                 return res.json({composer: composer, summary: wikiSummary, url:fullUrl});
             }
             else {
-                return res.status(404).send(`${composer} article not found in Wikipedia`)
+                return res.json({composer: composer, summary: "", url:""});
             }
         })
     }
